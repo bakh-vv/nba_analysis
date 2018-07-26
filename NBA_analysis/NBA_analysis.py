@@ -45,3 +45,77 @@ stats.ttest_rel(df_3p_1st_and_3rd['3p_percentage_1st'], df_3p_1st_and_3rd['3p_pe
 # nothing significant, but the "3 quarter warriors"
 
 
+###
+
+#each game is duplicated (counted once for both home and away team)
+df_first_half_duplicated = pd.read_csv('all_games_first_half_plus_minus.csv', sep=', ')
+#duplicates are removed (each game is counted only once)
+df_first_half = df_first_half_duplicated.drop_duplicates(subset = 'GAME_ID')
+
+
+# checked if lead within 2 points is significant, far from that
+df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -2) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 2))]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+#checking if lead of exactly 2 points is significant, still not significant
+df_first_half_close_game = df_first_half[(df_first_half['PLUS_MINUS'] == -2) | (df_first_half['PLUS_MINUS'] == 2)]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+
+#checking if lead within 3 points is significant, still not
+df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -3) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 3))]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+#checking if lead of exactly 3 points is significant, still not
+df_first_half_close_game = df_first_half[(df_first_half['PLUS_MINUS'] == -3) | (df_first_half['PLUS_MINUS'] == 3)]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+#checking if lead within 4 points is significant, not
+df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -4) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 4))]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+#checking if lead within 5 points is significant
+df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -5) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 5))]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
