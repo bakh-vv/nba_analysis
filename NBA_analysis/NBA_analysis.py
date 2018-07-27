@@ -109,7 +109,7 @@ pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['
 
 stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
 
-#checking if lead within 5 points is significant
+#checking if lead within 5 points is significant, yes
 df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -5) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 5))]
 
 df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
@@ -119,3 +119,37 @@ pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['
 pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
 
 stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
+
+
+### Multiple C->Q ANOVA
+# Position – age?
+df_position_age = pd.read_csv('positionage.csv', sep=', ')
+
+
+df_position_age_cleaned = df_position_age.drop(499)
+df_position_age_cleaned.boxplot("AGE", by = "PLAYER_POSITION")
+df_position_age_cleaned.groupby('PLAYER_POSITION')['AGE'].describe()
+
+df_position_age_cleaned.query('PLAYER_POSITION=="C-F"')['AGE'].hist() #potential outlier
+df_position_age_cleaned.query('PLAYER_POSITION=="C-F"')['AGE'].idxmax() #116
+
+#running ANOVA on the full data
+stats.f_oneway(df_position_age_cleaned.query('PLAYER_POSITION=="C"')['AGE'], \
+    df_position_age_cleaned.query('PLAYER_POSITION=="C-F"')['AGE'], df_position_age_cleaned.query('PLAYER_POSITION=="F"')['AGE'], \
+    df_position_age_cleaned.query('PLAYER_POSITION=="F-C"')['AGE'], df_position_age_cleaned.query('PLAYER_POSITION=="F-G"')['AGE'], \
+    df_position_age_cleaned.query('PLAYER_POSITION=="G"')['AGE'], df_position_age_cleaned.query('PLAYER_POSITION=="G-F"')['AGE'])
+
+# running ANOVA on the data without the outliers in the "C-F' and 'F-C" positions - Dirk Nowitzki and
+df_position_age_cleaned_outliers = df_position_age_cleaned.drop(116)
+df_position_age_cleaned_outliers = df_position_age_cleaned_outliers.drop(df_position_age_cleaned_outliers.query('PLAYER_POSITION=="F-C"')['AGE'].idxmax())
+
+stats.f_oneway(df_position_age_cleaned_outliers.query('PLAYER_POSITION=="C"')['AGE'], \
+    df_position_age_cleaned_outliers.query('PLAYER_POSITION=="C-F"')['AGE'], df_position_age_cleaned_outliers.query('PLAYER_POSITION=="F"')['AGE'], \
+    df_position_age_cleaned_outliers.query('PLAYER_POSITION=="F-C"')['AGE'], df_position_age_cleaned_outliers.query('PLAYER_POSITION=="F-G"')['AGE'], \
+    df_position_age_cleaned_outliers.query('PLAYER_POSITION=="G"')['AGE'], df_position_age_cleaned_outliers.query('PLAYER_POSITION=="G-F"')['AGE'])
+#the results are the same, so the outliers did not influence the results
+
+
+
+
