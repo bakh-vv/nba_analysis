@@ -45,7 +45,8 @@ stats.ttest_rel(df_3p_1st_and_3rd['3p_percentage_1st'], df_3p_1st_and_3rd['3p_pe
 # nothing significant, but the "3 quarter warriors"
 
 
-###
+### C->C Chi-square test for independence
+# in games where the lead is within 5 points at the half, does being ahead correlate with winning?
 
 #each game is duplicated (counted once for both home and away team)
 df_first_half_duplicated = pd.read_csv('all_games_first_half_plus_minus.csv', sep=', ')
@@ -150,6 +151,43 @@ stats.f_oneway(df_position_age_cleaned_outliers.query('PLAYER_POSITION=="C"')['A
     df_position_age_cleaned_outliers.query('PLAYER_POSITION=="G"')['AGE'], df_position_age_cleaned_outliers.query('PLAYER_POSITION=="G-F"')['AGE'])
 #the results are the same, so the outliers did not influence the results
 
+
+### C->C Chi-square test for independence
+# Usa/not usa -> position?
+df_position_usa = pd.read_csv('positionUSA.csv', sep=', ')
+df_position_int = pd.read_csv('positionInt.csv', sep=', ')
+
+df_position_usa['Origin'] = 'USA'
+df_position_int['Origin'] = 'International'
+
+# remove data entry outlier (he's not the only "pure" pg)
+df_position_origin = df_position_usa.append(df_position_int)
+df_position_origin_clean = df_position_origin.drop(df_position_origin.index[df_position_origin['PLAYER_POSITION'] == "PG"].tolist()[0])
+
+pd.crosstab(df_position_origin['Origin'], df_position_origin['PLAYER_POSITION'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+pd.crosstab(df_position_origin_clean['PLAYER_POSITION'], df_position_origin_clean['Origin'], margins=True)
+pd.crosstab(df_position_origin_clean['PLAYER_POSITION'], df_position_origin_clean['Origin'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_position_origin_clean['PLAYER_POSITION'], df_position_origin_clean['Origin']), correction = False)
+
+
+
+
+### Q->Q  regression t-test for the slope
+# Draft number height?
+df_player_bios = pd.read_csv('playerbios.csv', sep=', ')
+
+df_player_bios['DRAFT_NUMBER'] = pd.to_numeric(df_player_bios['DRAFT_NUMBER'], errors='coerce')
+df_player_bios['PLAYER_HEIGHT_INCHES'] = pd.to_numeric(df_player_bios['PLAYER_HEIGHT_INCHES'], errors='coerce')
+
+df_player_bios.plot.scatter('DRAFT_NUMBER', 'PLAYER_HEIGHT_INCHES')
+np.corrcoef(df17['Experience'], df17['Premium'])
+
+df17['Experience'].corr(df17['Premium'])
+
+stats.linregress(a, b)
 
 
 
