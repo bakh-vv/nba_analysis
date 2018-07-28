@@ -175,7 +175,7 @@ stats.chi2_contingency(pd.crosstab(df_position_origin_clean['PLAYER_POSITION'], 
 
 
 
-### Q->Q  regression t-test for the slope
+### Q->Q regression t-test for the slope
 # Draft number height?
 df_player_bios = pd.read_csv('playerbios.csv', sep=', ')
 
@@ -183,11 +183,68 @@ df_player_bios['DRAFT_NUMBER'] = pd.to_numeric(df_player_bios['DRAFT_NUMBER'], e
 df_player_bios['PLAYER_HEIGHT_INCHES'] = pd.to_numeric(df_player_bios['PLAYER_HEIGHT_INCHES'], errors='coerce')
 
 df_player_bios.plot.scatter('DRAFT_NUMBER', 'PLAYER_HEIGHT_INCHES')
-np.corrcoef(df17['Experience'], df17['Premium'])
+# not linear 
 
-df17['Experience'].corr(df17['Premium'])
 
-stats.linregress(a, b)
+### Q->Q  regression t-test for the slope
+# Windgspan deflections?
+df_player_wingspan = pd.read_csv('namewingspanposition.csv', sep=',')
+df_player_deflections = pd.read_csv('playerdeflections.csv', sep=', ')
 
+df_wingspan_deflections_with_nans = df_player_deflections.merge(df_player_wingspan, left_on = 'PLAYER_NAME', right_on = 'Player', how = 'left')
+# weed out inconsistencies in data
+df_wingspan_deflections_oneoff = df_wingspan_deflections_with_nans.dropna()
+df_wingspan_deflections = df_wingspan_deflections_oneoff.query('GP >= 15')
+
+df_wingspan_deflections['DEFLECTIONS'] = pd.to_numeric(df_wingspan_deflections['DEFLECTIONS'], errors='coerce')
+
+df_wingspan_deflections_centers = df_wingspan_deflections.query('Pos=="C"')
+df_wingspan_deflections_forwards = df_wingspan_deflections[(df_wingspan_deflections['Pos'] == "PF") | (df_wingspan_deflections['Pos'] == "SF")]
+df_wingspan_deflections_guards = df_wingspan_deflections[(df_wingspan_deflections['Pos'] == "PG") | (df_wingspan_deflections['Pos'] == "SG")]
+
+
+df_wingspan_deflections.plot.scatter('Wingspan-in', 'DEFLECTIONS')
+df_wingspan_deflections_centers.plot.scatter('Wingspan-in', 'DEFLECTIONS')
+df_wingspan_deflections_forwards.plot.scatter('Wingspan-in', 'DEFLECTIONS')
+df_wingspan_deflections_guards.plot.scatter('Wingspan-in', 'DEFLECTIONS')
+
+
+df_wingspan_deflections['Wingspan-in'].corr(df_wingspan_deflections['DEFLECTIONS'])
+
+stats.linregress(df_wingspan_deflections['Wingspan-in'], df_wingspan_deflections['DEFLECTIONS'])
+stats.linregress(df_wingspan_deflections_centers['Wingspan-in'], df_wingspan_deflections_centers['DEFLECTIONS'])
+stats.linregress(df_wingspan_deflections_forwards['Wingspan-in'], df_wingspan_deflections_forwards['DEFLECTIONS'])
+stats.linregress(df_wingspan_deflections_guards['Wingspan-in'], df_wingspan_deflections_guards['DEFLECTIONS'])
+
+
+### Q->Q  regression t-test for the slope
+# Windgspan steals?
+df_player_wingspan = pd.read_csv('namewingspanposition.csv', sep=',')
+df_player_defensive = pd.read_csv('playerdefensive.csv', sep=', ')
+
+df_wingspan_defensive_with_nans = df_player_defensive.merge(df_player_wingspan, left_on = 'PLAYER_NAME', right_on = 'Player', how = 'left')
+# weed out inconsistencies in data
+df_wingspan_defensive_oneoff = df_wingspan_defensive_with_nans.dropna()
+df_wingspan_defensive = df_wingspan_defensive_oneoff.query('GP > 15')
+
+df_wingspan_defensive['STL'] = pd.to_numeric(df_wingspan_defensive['STL'], errors='coerce')
+
+df_wingspan_defensive_centers = df_wingspan_defensive.query('Pos=="C"')
+df_wingspan_defensive_forwards = df_wingspan_defensive[(df_wingspan_defensive['Pos'] == "PF") | (df_wingspan_defensive['Pos'] == "SF")]
+df_wingspan_defensive_guards = df_wingspan_defensive[(df_wingspan_defensive['Pos'] == "PG") | (df_wingspan_defensive['Pos'] == "SG")]
+
+
+df_wingspan_defensive.plot.scatter('Wingspan-in', 'STL')
+df_wingspan_defensive_centers.plot.scatter('Wingspan-in', 'STL')
+df_wingspan_defensive_forwards.plot.scatter('Wingspan-in', 'STL')
+df_wingspan_defensive_guards.plot.scatter('Wingspan-in', 'STL')
+
+
+df_wingspan_defensive['Wingspan-in'].corr(df_wingspan_defensive['STL'])
+
+stats.linregress(df_wingspan_defensive['Wingspan-in'], df_wingspan_defensive['STL'])
+stats.linregress(df_wingspan_defensive_centers['Wingspan-in'], df_wingspan_defensive_centers['STL'])
+stats.linregress(df_wingspan_defensive_forwards['Wingspan-in'], df_wingspan_defensive_forwards['STL'])
+stats.linregress(df_wingspan_defensive_guards['Wingspan-in'], df_wingspan_defensive_guards['STL'])
 
 
