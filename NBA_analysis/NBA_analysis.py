@@ -12,8 +12,8 @@ import math
 team_3p_percentages_1_quarter = []
 team_3p_percentages_1_quarter_with_volume = []
 
-for csv_file in os.listdir('csv 1 quarters'):
-     csv_path = str.format('csv 1 quarters\{0}', csv_file)
+for csv_file in os.listdir('CSV datasets\csv 1 quarters'):
+     csv_path = str.format('CSV datasets\csv 1 quarters\{0}', csv_file)
      df_quarter = pd.read_csv(csv_path, sep=', ')
      three_p_percentage = (df_quarter['FG3M'].sum() / df_quarter['FG3A'].sum()) * 100
 
@@ -25,8 +25,8 @@ for csv_file in os.listdir('csv 1 quarters'):
 team_3p_percentages_3_quarter = []
 team_3p_percentages_3_quarter_with_volume = []
 
-for csv_file in os.listdir(r'C:\Users\Bakhtiyar\source\repos\NBA_analysis\NBA_analysis\csv 3 quarters'):
-     csv_path = str.format(r'C:\Users\Bakhtiyar\source\repos\NBA_analysis\NBA_analysis\csv 3 quarters\{0}', csv_file)
+for csv_file in os.listdir('CSV datasets\csv 3 quarters'):
+     csv_path = str.format('CSV datasets\csv 3 quarters\{0}', csv_file)
      df_quarter = pd.read_csv(csv_path, sep=', ')
      three_p_percentage = (df_quarter['FG3M'].sum() / df_quarter['FG3A'].sum()) * 100
 
@@ -40,6 +40,23 @@ df_3p_3_quarter = pd.DataFrame(team_3p_percentages_3_quarter)
 #merge the two dataframes for convenience
 df_3p_1st_and_3rd = df_3p_1_quarter.merge(df_3p_3_quarter)
 df_3p_1st_and_3rd = df_3p_1st_and_3rd[['team', '3p_percentage_1st', '3p_percentage_3rd']]
+
+# difference μ1−μ2 between quarter accuracy for each team
+df_3p_1st_and_3rd['Difference_between_1st_and_3rd'] = df_3p_1st_and_3rd['3p_percentage_1st'] - df_3p_1st_and_3rd['3p_percentage_3rd']
+df_3p_1st_and_3rd[['team', 'Difference_between_1st_and_3rd']]
+
+# histogram and descriptive statistics
+df_3p_1st_and_3rd.hist("Difference_between_1st_and_3rd")
+plt.title("Histogram of the difference between 1st and 3rd quarter 3 point shot accuracy")
+plt.xlabel("Difference")
+plt.ylabel("Teams")
+df_3p_1st_and_3rd['Difference_between_1st_and_3rd'].describe()
+
+# in Russian
+df_3p_1st_and_3rd.hist("Difference_between_1st_and_3rd")
+plt.title("Гистограмма разницы в точности трехочковых бросков между 1ой и 3ей четвертями")
+plt.xlabel("Разница")
+plt.ylabel("Команды")
 
 stats.ttest_rel(df_3p_1st_and_3rd['3p_percentage_1st'], df_3p_1st_and_3rd['3p_percentage_3rd'])
 # nothing significant, but the "3 quarter warriors"
@@ -110,6 +127,17 @@ pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['
 
 stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
 
+#checking if lead of exactly 4 points is significant, still not
+df_first_half_close_game = df_first_half[(df_first_half['PLUS_MINUS'] == -4) | (df_first_half['PLUS_MINUS'] == 4)]
+
+df_first_half_close_game['1st_half_win'] = df_first_half_close_game['PLUS_MINUS'] > 0
+df_first_half_close_game[['WL', 'PLUS_MINUS', '1st_half_win']]
+
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], margins=True)
+pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL'], normalize='index', margins=True)
+
+stats.chi2_contingency(pd.crosstab(df_first_half_close_game['1st_half_win'], df_first_half_close_game['WL']), correction = False)
+
 #checking if lead within 5 points is significant, yes
 df_first_half_close_game = df_first_half[((df_first_half['PLUS_MINUS'] >= -5) & (df_first_half['PLUS_MINUS'] <= -1)) | ((df_first_half['PLUS_MINUS'] >= 1) & (df_first_half['PLUS_MINUS'] <= 5))]
 
@@ -129,7 +157,17 @@ df_position_age = pd.read_csv('CSV datasets\\positionage.csv', sep=', ')
 
 
 df_position_age_cleaned = df_position_age.drop(499)
-df_position_age_cleaned.boxplot("AGE", by = "PLAYER_POSITION")
+sns.boxplot(df_position_age_cleaned['PLAYER_POSITION'], df_position_age_cleaned['AGE'])
+plt.title("Boxplots of the ages of players by different positions")
+plt.xlabel("Position")
+plt.ylabel("Age")
+
+# In Russian
+sns.boxplot(df_position_age_cleaned['PLAYER_POSITION'], df_position_age_cleaned['AGE'])
+plt.title("Диаграммы размаха возрастов игроков в разных позициях")
+plt.xlabel("Позиция")
+plt.ylabel("Возраст")
+
 df_position_age_cleaned.groupby('PLAYER_POSITION')['AGE'].describe()
 
 df_position_age_cleaned.query('PLAYER_POSITION=="C-F"')['AGE'].hist() #potential outlier
@@ -141,7 +179,7 @@ stats.f_oneway(df_position_age_cleaned.query('PLAYER_POSITION=="C"')['AGE'], \
     df_position_age_cleaned.query('PLAYER_POSITION=="F-C"')['AGE'], df_position_age_cleaned.query('PLAYER_POSITION=="F-G"')['AGE'], \
     df_position_age_cleaned.query('PLAYER_POSITION=="G"')['AGE'], df_position_age_cleaned.query('PLAYER_POSITION=="G-F"')['AGE'])
 
-# running ANOVA on the data without the outliers in the "C-F' and 'F-C" positions - Dirk Nowitzki and
+# running ANOVA on the data without the outliers in the "C-F' and 'F-C" positions - Dirk Nowitzki and Nick Collison
 df_position_age_cleaned_outliers = df_position_age_cleaned.drop(116)
 df_position_age_cleaned_outliers = df_position_age_cleaned_outliers.drop(df_position_age_cleaned_outliers.query('PLAYER_POSITION=="F-C"')['AGE'].idxmax())
 
@@ -208,6 +246,11 @@ df_wingspan_deflections_centers.plot.scatter('Wingspan-in', 'DEFLECTIONS')
 df_wingspan_deflections_forwards.plot.scatter('Wingspan-in', 'DEFLECTIONS')
 df_wingspan_deflections_guards.plot.scatter('Wingspan-in', 'DEFLECTIONS')
 
+# In Russian
+df_wingspan_deflections_guards.plot.scatter('Wingspan-in', 'DEFLECTIONS')
+plt.title("Диаграмма рассеяния размаха рук и количества результативных отклонений среди защитников")
+plt.xlabel("Размах рук")
+plt.ylabel("Результативные отклонения")
 
 df_wingspan_deflections['Wingspan-in'].corr(df_wingspan_deflections['DEFLECTIONS'])
 
@@ -239,6 +282,11 @@ df_wingspan_defensive_centers.plot.scatter('Wingspan-in', 'STL')
 df_wingspan_defensive_forwards.plot.scatter('Wingspan-in', 'STL')
 df_wingspan_defensive_guards.plot.scatter('Wingspan-in', 'STL')
 
+# In Russian
+df_wingspan_defensive_guards.plot.scatter('Wingspan-in', 'STL')
+plt.title("Диаграмма рассеяния размаха рук и количества успешных перехватов среди защитников")
+plt.xlabel("Размах рук")
+plt.ylabel("Перехваты")
 
 df_wingspan_defensive['Wingspan-in'].corr(df_wingspan_defensive['STL'])
 
