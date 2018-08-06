@@ -232,7 +232,7 @@ df_player_deflections = pd.read_csv('CSV datasets\\playerdeflections.csv', sep='
 df_wingspan_deflections_with_nans = df_player_deflections.merge(df_player_wingspan, left_on = 'PLAYER_NAME', right_on = 'Player', how = 'left')
 # weed out inconsistencies in data
 df_wingspan_deflections_oneoff = df_wingspan_deflections_with_nans.dropna()
-df_wingspan_deflections = df_wingspan_deflections_oneoff.query('GP >= 15')
+df_wingspan_deflections = df_wingspan_deflections_oneoff.query('G >= 15')
 
 df_wingspan_deflections['DEFLECTIONS'] = pd.to_numeric(df_wingspan_deflections['DEFLECTIONS'], errors='coerce')
 
@@ -252,7 +252,7 @@ plt.title("Диаграмма рассеяния размаха рук и кол
 plt.xlabel("Размах рук")
 plt.ylabel("Результативные отклонения")
 
-df_wingspan_deflections['Wingspan-in'].corr(df_wingspan_deflections['DEFLECTIONS'])
+df_wingspan_deflections_centers['Wingspan-in'].corr(df_wingspan_deflections['DEFLECTIONS'])
 
 stats.linregress(df_wingspan_deflections['Wingspan-in'], df_wingspan_deflections['DEFLECTIONS'])
 stats.linregress(df_wingspan_deflections_centers['Wingspan-in'], df_wingspan_deflections_centers['DEFLECTIONS'])
@@ -294,5 +294,30 @@ stats.linregress(df_wingspan_defensive['Wingspan-in'], df_wingspan_defensive['ST
 stats.linregress(df_wingspan_defensive_centers['Wingspan-in'], df_wingspan_defensive_centers['STL'])
 stats.linregress(df_wingspan_defensive_forwards['Wingspan-in'], df_wingspan_defensive_forwards['STL'])
 stats.linregress(df_wingspan_defensive_guards['Wingspan-in'], df_wingspan_defensive_guards['STL'])
+
+
+
+# Imports #
+from random import random
+import statsmodels.api as smapi
+from statsmodels.formula.api import ols
+import statsmodels.graphics as smgraphics
+
+# Make fit #
+regression = ols("data ~ x", data=dict(data=df_wingspan_deflections_forwards['DEFLECTIONS'], x=df_wingspan_deflections_forwards['Wingspan-in'])).fit()
+# Find outliers #
+test = regression.outlier_test()
+outliers = ((df_wingspan_deflections_forwards['Wingspan-in'].iloc[i], df_wingspan_deflections_forwards['DEFLECTIONS'].iloc[i]) for i,t in enumerate(test.iloc[:, 2]) if t < 0.5)
+print('Outliers: ', list(outliers))
+# Figure #
+figure = smgraphics.regressionplots.plot_fit(regression, 1)
+# Add line #
+smgraphics.regressionplots.abline_plot(model_results=regression, ax=figure.axes[0])
+
+regression = ols("data ~ x", data=dict(data=df_wingspan_deflections['DEFLECTIONS'], x=df_wingspan_deflections['Wingspan-in'])).fit()
+# Find outliers #
+test = regression.outlier_test()
+outliers = ((df_wingspan_deflections['Wingspan-in'].iloc[i], df_wingspan_deflections['DEFLECTIONS'].iloc[i]) for i,t in enumerate(test.iloc[:, 2]) if t < 0.5)
+print('Outliers: ', list(outliers))
 
 
